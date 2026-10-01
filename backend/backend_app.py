@@ -54,7 +54,7 @@ def get_posts():
     sort_by = request.args.get("sort")
     direction = request.args.get("direction")
     page = request.args.get("page", default=1, type=int)
-    limit = request.args.get("limit", default=5, type=int)
+    limit = min(request.args.get("limit", default=10, type=int), 100)
 
     if page < 1 or limit < 1:
         return jsonify({"error": "Invalid page number or limit"}), 400

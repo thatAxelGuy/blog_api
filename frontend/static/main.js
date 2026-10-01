@@ -1,3 +1,6 @@
+var currentPage = 1;
+var postsPerPage = 10;
+
 // Function that runs once the window is fully loaded
 window.onload = function() {
     // Attempt to retrieve the API base URL from the local storage
@@ -16,23 +19,47 @@ function loadPosts() {
     localStorage.setItem('apiBaseUrl', baseUrl);
 
     // Use the Fetch API to send a GET request to the /posts endpoint
-    fetch(baseUrl + '/posts')
+    fetch(baseUrl + '/posts?page=' + currentPage + '&limit=' + postsPerPage)
         .then(response => response.json())  // Parse the JSON data from the response
-        .then(data => {  // Once the data is ready, we can use it
+        .then(data => {  
+            // If there are no posts, go back to the previous page
+            if (data.length === 0) {
+                currentPage--;
+                return;
+            }
+            // Once the data is ready, we can use it
             // Clear out the post container first
             const postContainer = document.getElementById('post-container');
             postContainer.innerHTML = '';
+
+            document.getElementById('page-number').textContent = 'Page ' + currentPage;
 
             // For each post in the response, create a new post element and add it to the page
             data.forEach(post => {
                 const postDiv = document.createElement('div');
                 postDiv.className = 'post';
-                postDiv.innerHTML = `<h2>${post.title}</h2><p>${post.content}</p>
+                postDiv.innerHTML = `
+                <h2>${post.title}</h2>
+                <p>${post.content}</p>
+                <p><strong>Author:</strong> ${post.author}</p>
+                <p><strong>Date:</strong> ${post.date}</p>
                 <button onclick="deletePost(${post.id})">Delete</button>`;
                 postContainer.appendChild(postDiv);
             });
         })
         .catch(error => console.error('Error:', error));  // If an error occurs, log it to the console
+}
+
+function nextPage() {
+    currentPage++;
+    loadPosts();
+}
+
+function previousPage() {
+    if (currentPage > 1) {
+        currentPage--;
+        loadPosts();
+    }
 }
 
 // Function to send a POST request to the API to add a new post
@@ -41,12 +68,18 @@ function addPost() {
     var baseUrl = document.getElementById('api-base-url').value;
     var postTitle = document.getElementById('post-title').value;
     var postContent = document.getElementById('post-content').value;
+    var postDate = new Date().toISOString().split('T')[0];
+
+    var names = ["Axel", "Sarah", "John", "Maria"];
+
+    var randomIndex = Math.floor(Math.random() * names.length);
+    var postAuthor = names[randomIndex];
 
     // Use the Fetch API to send a POST request to the /posts endpoint
     fetch(baseUrl + '/posts', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ title: postTitle, content: postContent })
+        body: JSON.stringify({ title: postTitle, content: postContent, author: postAuthor, date: postDate })
     })
     .then(response => response.json())  // Parse the JSON data from the response
     .then(post => {

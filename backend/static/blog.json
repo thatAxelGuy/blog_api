@@ -1,7 +1,7 @@
 {
   "swagger": "2.0",
   "info": {
-    "title": "Axel-blog API",
+    "title": "Axel-Blog API",
     "version": "1.0.0"
   },
   "host": "localhost:5002",
@@ -113,11 +113,13 @@
           },
           "400": {
             "description": "Title, content, author and date are required"
+          },
+          "500": {
+            "description": "Failed to save posts."
           }
         }
       }
     },
-
     "/api/posts/{id}": {
       "delete": {
         "summary": "Delete a post",
@@ -142,10 +144,12 @@
           },
           "404": {
             "description": "Post does not exist"
+          },
+          "500": {
+            "description": "Failed to save posts."
           }
         }
       },
-
       "put": {
         "summary": "Update a post",
         "consumes": [
@@ -183,11 +187,13 @@
           },
           "404": {
             "description": "Post does not exist"
+          },
+          "500": {
+            "description": "Failed to save posts."
           }
         }
       }
     },
-
     "/api/posts/search": {
       "get": {
         "summary": "Search posts by title, content, author, or date",
@@ -199,32 +205,11 @@
         ],
         "parameters": [
           {
-            "name": "title",
+            "name": "search",
             "in": "query",
             "type": "string",
-            "required": false,
-            "description": "Search for text contained in the post title"
-          },
-          {
-            "name": "content",
-            "in": "query",
-            "type": "string",
-            "required": false,
-            "description": "Search for text contained in the post content"
-          },
-          {
-            "name": "author",
-            "in": "query",
-            "type": "string",
-            "required": false,
-            "description": "Search for text contained in the post author"
-          },
-          {
-            "name": "date",
-            "in": "query",
-            "type": "string",
-            "required": false,
-            "description": "Search for text contained in the post date"
+            "required": true,
+            "description": "Search for text contained in the title, content, author, or date"
           },
           {
             "name": "page",
@@ -256,13 +241,12 @@
             }
           },
           "400": {
-            "description": "Invalid page number or limit"
+            "description": "Search query is required, or page/limit is invalid"
           }
         }
       }
     }
   },
-
   "definitions": {
     "Post": {
       "type": "object",
@@ -285,11 +269,11 @@
         },
         "date": {
           "type": "string",
+          "format": "date",
           "example": "2026-01-01"
         }
       }
     },
-
     "PostInput": {
       "type": "object",
       "required": [
@@ -313,11 +297,11 @@
         },
         "date": {
           "type": "string",
+          "format": "date",
           "example": "2026-01-01"
         }
       }
     },
-
     "PostUpdate": {
       "type": "object",
       "properties": {
@@ -335,6 +319,7 @@
         },
         "date": {
           "type": "string",
+          "format": "date",
           "example": "2026-01-02"
         }
       }

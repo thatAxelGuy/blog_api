@@ -12,7 +12,7 @@ import json
 import os
 from datetime import date
 
-from flask import Flask, jsonify, request
+from flask import Flask, Response, jsonify, request
 from flask_cors import CORS
 from flask_swagger_ui import get_swaggerui_blueprint
 
@@ -44,7 +44,7 @@ def load_posts() -> list[dict]:
         return []
 
 
-def save_posts(posts) -> bool:
+def save_posts(posts: list[dict]) -> bool:
     """Save the list of blog posts to the JSON file."""
     try:
         with open(POSTS_FILE, "w", encoding="utf-8") as file:
@@ -63,7 +63,7 @@ def _paginate(posts: list[dict], page: int, limit: int) -> list[dict]:
 
 
 @app.route("/api/posts", methods=["GET"])
-def get_posts():
+def get_posts() ->tuple[Response, int]:
     """Return a paginated list of blog posts with optional sorting."""
     sort_by = request.args.get("sort")
     direction = request.args.get("direction")
@@ -105,7 +105,7 @@ def get_posts():
 
 
 @app.route("/api/posts", methods=["POST"])
-def add_post():
+def add_post() ->tuple[Response, int]:
     """Create a new blog post from the JSON request data."""
     posts = load_posts()
     new_id = max((post["id"] for post in posts), default=0) + 1
@@ -138,7 +138,7 @@ def add_post():
 
 
 @app.route("/api/posts/<int:id>", methods=["DELETE"])
-def remove_post(id):
+def remove_post(id: int) -> tuple[Response, int]:
     """Delete a blog post by its ID."""
     posts = load_posts()
     for post in posts:
@@ -159,7 +159,7 @@ def remove_post(id):
 
 
 @app.route("/api/posts/<int:id>", methods=["PUT"])
-def update_post(id):
+def update_post(id: int) -> tuple[Response, int]:
     """Update an existing blog post by its ID."""
     posts = load_posts()
     post_to_update = None
@@ -193,7 +193,7 @@ def update_post(id):
 
 
 @app.route("/api/posts/search", methods=["GET"])
-def search_posts():
+def search_posts() -> tuple[Response, int]:
     """Search blog posts by title, content, author, or date."""
     posts = load_posts()
     search_query = request.args.get("search")

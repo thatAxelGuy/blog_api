@@ -1,0 +1,343 @@
+{
+  "swagger": "2.0",
+  "info": {
+    "title": "Axel-blog API",
+    "version": "1.0.0"
+  },
+  "host": "localhost:5002",
+  "schemes": [
+    "http"
+  ],
+  "tags": [
+    {
+      "name": "Post",
+      "description": "Post API - CRUD"
+    }
+  ],
+  "paths": {
+    "/api/posts": {
+      "get": {
+        "summary": "Returns all posts",
+        "produces": [
+          "application/json"
+        ],
+        "tags": [
+          "Post"
+        ],
+        "parameters": [
+          {
+            "name": "sort",
+            "in": "query",
+            "type": "string",
+            "required": false,
+            "enum": [
+              "title",
+              "content",
+              "author",
+              "date"
+            ],
+            "description": "Field to sort by"
+          },
+          {
+            "name": "direction",
+            "in": "query",
+            "type": "string",
+            "required": false,
+            "enum": [
+              "asc",
+              "desc"
+            ],
+            "description": "Sort direction"
+          },
+          {
+            "name": "page",
+            "in": "query",
+            "type": "integer",
+            "required": false,
+            "default": 1,
+            "minimum": 1,
+            "description": "Page number"
+          },
+          {
+            "name": "limit",
+            "in": "query",
+            "type": "integer",
+            "required": false,
+            "default": 5,
+            "minimum": 1,
+            "description": "Number of posts per page"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful operation",
+            "schema": {
+              "type": "array",
+              "items": {
+                "$ref": "#/definitions/Post"
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid page, limit, sort, or direction"
+          }
+        }
+      },
+      "post": {
+        "summary": "Create a post",
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "tags": [
+          "Post"
+        ],
+        "parameters": [
+          {
+            "name": "post",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/PostInput"
+            }
+          }
+        ],
+        "responses": {
+          "201": {
+            "description": "Post created successfully",
+            "schema": {
+              "$ref": "#/definitions/Post"
+            }
+          },
+          "400": {
+            "description": "Title, content, author and date are required"
+          }
+        }
+      }
+    },
+
+    "/api/posts/{id}": {
+      "delete": {
+        "summary": "Delete a post",
+        "produces": [
+          "application/json"
+        ],
+        "tags": [
+          "Post"
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "type": "integer",
+            "description": "ID of the post to delete"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Post deleted successfully"
+          },
+          "404": {
+            "description": "Post does not exist"
+          }
+        }
+      },
+
+      "put": {
+        "summary": "Update a post",
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "tags": [
+          "Post"
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "type": "integer",
+            "description": "ID of the post to update"
+          },
+          {
+            "name": "post",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/PostUpdate"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Post updated successfully",
+            "schema": {
+              "$ref": "#/definitions/Post"
+            }
+          },
+          "404": {
+            "description": "Post does not exist"
+          }
+        }
+      }
+    },
+
+    "/api/posts/search": {
+      "get": {
+        "summary": "Search posts by title, content, author, or date",
+        "produces": [
+          "application/json"
+        ],
+        "tags": [
+          "Post"
+        ],
+        "parameters": [
+          {
+            "name": "title",
+            "in": "query",
+            "type": "string",
+            "required": false,
+            "description": "Search for text contained in the post title"
+          },
+          {
+            "name": "content",
+            "in": "query",
+            "type": "string",
+            "required": false,
+            "description": "Search for text contained in the post content"
+          },
+          {
+            "name": "author",
+            "in": "query",
+            "type": "string",
+            "required": false,
+            "description": "Search for text contained in the post author"
+          },
+          {
+            "name": "date",
+            "in": "query",
+            "type": "string",
+            "required": false,
+            "description": "Search for text contained in the post date"
+          },
+          {
+            "name": "page",
+            "in": "query",
+            "type": "integer",
+            "required": false,
+            "default": 1,
+            "minimum": 1,
+            "description": "Page number"
+          },
+          {
+            "name": "limit",
+            "in": "query",
+            "type": "integer",
+            "required": false,
+            "default": 5,
+            "minimum": 1,
+            "description": "Number of posts per page"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Search results returned successfully",
+            "schema": {
+              "type": "array",
+              "items": {
+                "$ref": "#/definitions/Post"
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid page number or limit"
+          }
+        }
+      }
+    }
+  },
+
+  "definitions": {
+    "Post": {
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "integer",
+          "example": 1
+        },
+        "title": {
+          "type": "string",
+          "example": "My First Flask API"
+        },
+        "content": {
+          "type": "string",
+          "example": "Today I built my first API using Flask."
+        },
+        "author": {
+          "type": "string",
+          "example": "Axel"
+        },
+        "date": {
+          "type": "string",
+          "example": "2026-01-01"
+        }
+      }
+    },
+
+    "PostInput": {
+      "type": "object",
+      "required": [
+        "title",
+        "content",
+        "author",
+        "date"
+      ],
+      "properties": {
+        "title": {
+          "type": "string",
+          "example": "My New Post"
+        },
+        "content": {
+          "type": "string",
+          "example": "This is the content of my new post."
+        },
+        "author": {
+          "type": "string",
+          "example": "Axel"
+        },
+        "date": {
+          "type": "string",
+          "example": "2026-01-01"
+        }
+      }
+    },
+
+    "PostUpdate": {
+      "type": "object",
+      "properties": {
+        "title": {
+          "type": "string",
+          "example": "Updated title"
+        },
+        "content": {
+          "type": "string",
+          "example": "Updated content."
+        },
+        "author": {
+          "type": "string",
+          "example": "Axel"
+        },
+        "date": {
+          "type": "string",
+          "example": "2026-01-02"
+        }
+      }
+    }
+  }
+}

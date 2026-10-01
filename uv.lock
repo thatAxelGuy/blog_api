@@ -18,12 +18,14 @@ source = { virtual = "." }
 dependencies = [
     { name = "flask" },
     { name = "flask-cors" },
+    { name = "flask-swagger-ui" },
 ]
 
 [package.metadata]
 requires-dist = [
     { name = "flask", specifier = ">=3.1.3" },
     { name = "flask-cors", specifier = ">=6.0.5" },
+    { name = "flask-swagger-ui", specifier = ">=5.33.0" },
 ]
 
 [[package]]
@@ -63,6 +65,18 @@ dependencies = [
 sdist = { url = "https://files.pythonhosted.org/packages/47/03/4e464a50860f9adf08b5c1d3479cb8ea1f12af2aa69535c7042c6e628135/flask_cors-6.0.5.tar.gz", hash = "sha256:30c5031552cd59f620ac0c8211dac45b345d3b2df310e7721879e4f46ef9c601", size = 101386, upload-time = "2026-06-08T20:20:17.765Z" }
 wheels = [
     { url = "https://files.pythonhosted.org/packages/49/55/5bb1a2d918e9f02f131e47a59032bae70e48050e986e941511fd737a935c/flask_cors-6.0.5-py3-none-any.whl", hash = "sha256:68fcf75693e961f3af26683b23c4b9a8fb6b64de17d20d0c37b95e8de7ab2ed8", size = 16692, upload-time = "2026-06-08T20:20:16.247Z" },
+]
+
+[[package]]
+name = "flask-swagger-ui"
+version = "5.33.0"
+source = { registry = "https://pypi.org/simple" }
+dependencies = [
+    { name = "flask" },
+]
+sdist = { url = "https://files.pythonhosted.org/packages/a5/9c/3b4ff2c907d5e4fe872bf593250bf3ef0725da24c26a7348a4df08b86eb1/flask_swagger_ui-5.33.0.tar.gz", hash = "sha256:96ec9bbb2ddc004123b722242111a08f074f04d2c93dfbd3682f7720cd5f80e2", size = 639836, upload-time = "2026-09-21T15:28:29.051Z" }
+wheels = [
+    { url = "https://files.pythonhosted.org/packages/bc/f9/c0900ac012e625f902ec3445e22ed6ab5c5325a05416db0c45356c996394/flask_swagger_ui-5.33.0-py3-none-any.whl", hash = "sha256:183a0234fa0e0e001fbb1a5f8a4aa762729f7eaf34ff288bd7a00514a6ab7381", size = 644885, upload-time = "2026-09-21T15:28:27.46Z" },
 ]
 
 [[package]]

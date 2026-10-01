@@ -1,3 +1,13 @@
+"""
+Masterblog API.
+
+A Flask REST API for managing blog posts. The API supports creating,
+reading, updating, and deleting posts, as well as searching, sorting,
+and paginating blog posts.
+
+Blog posts are stored persistently in a JSON file.
+"""
+
 import json
 import os
 from datetime import date
@@ -24,6 +34,7 @@ POSTS_FILE = os.path.join(BASE_DIR, "posts.json")
 
 
 def load_posts() -> list[dict]:
+    """Load blog posts from the JSON file and return them as a list."""
     try:
         with open(POSTS_FILE, "r", encoding="utf-8") as file:
             return json.load(file)
@@ -34,6 +45,7 @@ def load_posts() -> list[dict]:
 
 
 def save_posts(posts) -> bool:
+    """Save the list of blog posts to the JSON file."""
     try:
         with open(POSTS_FILE, "w", encoding="utf-8") as file:
             json.dump(posts, file, indent=2, ensure_ascii=False)
@@ -44,6 +56,7 @@ def save_posts(posts) -> bool:
 
 
 def _paginate(posts: list[dict], page: int, limit: int) -> list[dict]:
+    """Return the posts for the requested page and limit."""
     start = (page - 1) * limit
     end = start + limit
     return posts[start:end]
@@ -51,6 +64,7 @@ def _paginate(posts: list[dict], page: int, limit: int) -> list[dict]:
 
 @app.route("/api/posts", methods=["GET"])
 def get_posts():
+    """Return a paginated list of blog posts with optional sorting."""
     sort_by = request.args.get("sort")
     direction = request.args.get("direction")
     page = request.args.get("page", default=1, type=int)
@@ -92,6 +106,7 @@ def get_posts():
 
 @app.route("/api/posts", methods=["POST"])
 def add_post():
+    """Create a new blog post from the JSON request data."""
     posts = load_posts()
     new_id = max((post["id"] for post in posts), default=0) + 1
 
@@ -124,6 +139,7 @@ def add_post():
 
 @app.route("/api/posts/<int:id>", methods=["DELETE"])
 def remove_post(id):
+    """Delete a blog post by its ID."""
     posts = load_posts()
     for post in posts:
         if post["id"] == id:
@@ -144,6 +160,7 @@ def remove_post(id):
 
 @app.route("/api/posts/<int:id>", methods=["PUT"])
 def update_post(id):
+    """Update an existing blog post by its ID."""
     posts = load_posts()
     post_to_update = None
 
@@ -177,6 +194,7 @@ def update_post(id):
 
 @app.route("/api/posts/search", methods=["GET"])
 def search_posts():
+    """Search blog posts by title, content, author, or date."""
     posts = load_posts()
     search_query = request.args.get("search")
     page = request.args.get("page", default=1, type=int)

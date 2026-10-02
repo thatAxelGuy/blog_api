@@ -11,10 +11,21 @@ Blog posts are stored persistently in a JSON file.
 import json
 import os
 from datetime import date
+from typing import TypedDict
 
 from flask import Flask, Response, jsonify, request
 from flask_cors import CORS
 from flask_swagger_ui import get_swaggerui_blueprint
+
+
+class BlogPost(TypedDict):
+    """Define the expected blog post structure for static type checking."""
+    id: int
+    title: str
+    content: str
+    author: str
+    date: str
+
 
 app = Flask(__name__)
 CORS(app)  # This will enable CORS for all routes
@@ -33,7 +44,7 @@ BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 POSTS_FILE = os.path.join(BASE_DIR, "posts.json")
 
 
-def load_posts() -> list[dict]:
+def load_posts() -> list[BlogPost]:
     """Load blog posts from the JSON file.
 
     Returns:
@@ -49,7 +60,7 @@ def load_posts() -> list[dict]:
         return []
 
 
-def save_posts(posts: list[dict]) -> bool:
+def save_posts(posts: list[BlogPost]) -> bool:
     """Save the list of blog posts to the JSON file.
 
     Args:
@@ -67,7 +78,7 @@ def save_posts(posts: list[dict]) -> bool:
     return True
 
 
-def _paginate(posts: list[dict], page: int, limit: int) -> list[dict]:
+def _paginate(posts: list[BlogPost], page: int, limit: int) -> list[BlogPost]:
     """Return a subset of posts for the requested page.
 
     Args:
@@ -84,7 +95,7 @@ def _paginate(posts: list[dict], page: int, limit: int) -> list[dict]:
 
 
 @app.route("/api/posts", methods=["GET"])
-def get_posts() ->tuple[Response, int]:
+def get_posts() -> tuple[Response, int]:
     """Return a paginated and optionally sorted list of blog posts.
 
     Query parameters:
@@ -138,7 +149,7 @@ def get_posts() ->tuple[Response, int]:
 
 
 @app.route("/api/posts", methods=["POST"])
-def add_post() ->tuple[Response, int]:
+def add_post() -> tuple[Response, int]:
     """Create a new blog post from JSON request data.
 
     The request must contain non-empty title, content, author, and date
@@ -163,13 +174,13 @@ def add_post() ->tuple[Response, int]:
     ):
         return jsonify({"error": "Title, content, author and date are required"}), 400
 
-    new_post = {
-        "id": new_id,
-        "title": response.get("title").strip(),
-        "content": response.get("content").strip(),
-        "author": response.get("author").strip(),
-        "date": response.get("date").strip(),
-    }
+    new_post = BlogPost(
+        id=new_id,
+        title=response.get("title").strip(),
+        content=response.get("content").strip(),
+        author=response.get("author").strip(),
+        date=response.get("date").strip(),
+    )
 
     posts.append(new_post)
 

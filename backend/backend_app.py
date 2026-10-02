@@ -25,7 +25,7 @@ API_URL = "/static/blog.json"  # (2) ensure you create this dir and file
 swagger_ui_blueprint = get_swaggerui_blueprint(
     SWAGGER_URL,
     API_URL,
-    config={"app_name": "Axel-Blog API"},  # (3) You can change this if you like
+    config={"app_name": "Axel-Blog API"},
 )
 app.register_blueprint(swagger_ui_blueprint, url_prefix=SWAGGER_URL)
 
@@ -34,7 +34,12 @@ POSTS_FILE = os.path.join(BASE_DIR, "posts.json")
 
 
 def load_posts() -> list[dict]:
-    """Load blog posts from the JSON file and return them as a list."""
+    """Load blog posts from the JSON file.
+
+    Returns:
+        A list of blog post dictionaries. Returns an empty list if
+        the file does not exist or contains invalid JSON.
+    """
     try:
         with open(POSTS_FILE, "r", encoding="utf-8") as file:
             return json.load(file)
@@ -45,7 +50,14 @@ def load_posts() -> list[dict]:
 
 
 def save_posts(posts: list[dict]) -> bool:
-    """Save the list of blog posts to the JSON file."""
+    """Save the list of blog posts to the JSON file.
+
+    Args:
+        posts: A list of blog post dictionaries.
+
+    Returns:
+        True if the posts were saved successfully, False otherwise.
+    """
     try:
         with open(POSTS_FILE, "w", encoding="utf-8") as file:
             json.dump(posts, file, indent=2, ensure_ascii=False)
@@ -56,7 +68,16 @@ def save_posts(posts: list[dict]) -> bool:
 
 
 def _paginate(posts: list[dict], page: int, limit: int) -> list[dict]:
-    """Return the posts for the requested page and limit."""
+    """Return a subset of posts for the requested page.
+
+    Args:
+        posts: The list of blog posts to paginate.
+        page: The page number, starting from 1.
+        limit: The maximum number of posts per page.
+
+    Returns:
+        A list containing the posts for the requested page.
+    """
     start = (page - 1) * limit
     end = start + limit
     return posts[start:end]
@@ -64,7 +85,19 @@ def _paginate(posts: list[dict], page: int, limit: int) -> list[dict]:
 
 @app.route("/api/posts", methods=["GET"])
 def get_posts() ->tuple[Response, int]:
-    """Return a paginated list of blog posts with optional sorting."""
+    """Return a paginated and optionally sorted list of blog posts.
+
+    Query parameters:
+        sort: The field to sort by: title, content, author, or date.
+        direction: The sort direction: asc or desc.
+        page: The page number, starting from 1. Defaults to 1.
+        limit: The maximum number of posts per page. Defaults to 10
+            and is capped at 100.
+
+    Returns:
+        A JSON response containing the requested posts with HTTP 200,
+        or a JSON error response with HTTP 400 for invalid parameters.
+    """
     sort_by = request.args.get("sort")
     direction = request.args.get("direction")
     page = request.args.get("page", default=1, type=int)
@@ -106,7 +139,16 @@ def get_posts() ->tuple[Response, int]:
 
 @app.route("/api/posts", methods=["POST"])
 def add_post() ->tuple[Response, int]:
-    """Create a new blog post from the JSON request data."""
+    """Create a new blog post from JSON request data.
+
+    The request must contain non-empty title, content, author, and date
+    fields.
+
+    Returns:
+        A JSON response containing the new post with HTTP 201 on success.
+        Returns HTTP 400 if required fields are missing and HTTP 500 if
+        the post cannot be saved.
+    """
     posts = load_posts()
     new_id = max((post["id"] for post in posts), default=0) + 1
 
@@ -139,7 +181,16 @@ def add_post() ->tuple[Response, int]:
 
 @app.route("/api/posts/<int:id>", methods=["DELETE"])
 def remove_post(id: int) -> tuple[Response, int]:
-    """Delete a blog post by its ID."""
+    """Delete a blog post by its ID.
+
+    Args:
+        id: The ID of the blog post to delete.
+
+    Returns:
+        A JSON success message with HTTP 200 if the post is deleted.
+        Returns HTTP 404 if the post does not exist, or HTTP 500 if
+        the updated posts cannot be saved.
+    """
     posts = load_posts()
     for post in posts:
         if post["id"] == id:
@@ -160,7 +211,18 @@ def remove_post(id: int) -> tuple[Response, int]:
 
 @app.route("/api/posts/<int:id>", methods=["PUT"])
 def update_post(id: int) -> tuple[Response, int]:
-    """Update an existing blog post by its ID."""
+    """Update an existing blog post using JSON request data.
+
+    Args:
+        id: The ID of the blog post to update.
+
+    The request may contain title, content, author, and date fields.
+
+    Returns:
+        A JSON response containing the updated post with HTTP 200.
+        Returns HTTP 404 if the post does not exist, or HTTP 500 if
+        the updated posts cannot be saved.
+    """
     posts = load_posts()
     post_to_update = None
 
@@ -194,7 +256,18 @@ def update_post(id: int) -> tuple[Response, int]:
 
 @app.route("/api/posts/search", methods=["GET"])
 def search_posts() -> tuple[Response, int]:
-    """Search blog posts by title, content, author, or date."""
+    """Search blog posts by title, content, author, or date.
+
+    Query parameters:
+        search: The text to search for in post fields.
+        page: The page number, starting from 1. Defaults to 1.
+        limit: The maximum number of matching posts per page.
+            Defaults to 5.
+
+    Returns:
+        A JSON response containing the matching posts with HTTP 200.
+        Returns HTTP 400 if the search query, page, or limit is invalid.
+    """
     posts = load_posts()
     search_query = request.args.get("search")
     page = request.args.get("page", default=1, type=int)
